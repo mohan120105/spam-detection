@@ -67,7 +67,7 @@ if st.button('Predict'):
         result = logistic_model.predict(vector_input)[0]
 
         # Output
-        if result == 1:
+        if result == 0:
             st.header("🚫 Spam")
         else:
             st.header("✅ Not Spam")
