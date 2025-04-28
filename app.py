@@ -41,16 +41,30 @@ def transform_text(text):
 
     return " ".join(y)
 
-# Load vectorizer and logistic model
-try:
-    cv = joblib.load('count_vectorizer.joblib')
-    logistic_model = joblib.load('logistic_regression_model.joblib')
-    st.success("Model and vectorizer loaded successfully!")
-except Exception as e:
-    st.error(f"Error loading model or vectorizer: {e}")
+# Load models
+model_dict = {
+    "Bernoulli Naive Bayes": 'bernoulli_nb_model.joblib',
+    "Random Forest": 'random_forest_model.joblib',
+    "Multinomial Naive Bayes": 'multinomial_nb_model.joblib',
+    
+}
+
+# Function to load the selected model
+def load_model(model_name):
+    try:
+        model = joblib.load(model_dict[model_name])
+        vectorizer = joblib.load('cv_vectorizer.joblib')
+        st.success(f"{model_name} and vectorizer loaded successfully!")
+        return model, vectorizer
+    except Exception as e:
+        st.error(f"Error loading {model_name}: {e}")
+        return None, None
 
 # Streamlit UI
-st.title("📩 SMS Spam Classifier (Logistic Regression)")
+st.title("📩 SMS Spam Classifier")
+
+# Dropdown for model selection
+model_name = st.selectbox("Select the Model", list(model_dict.keys()))
 
 input_sms = st.text_area("Enter the message")
 
@@ -58,16 +72,21 @@ if st.button('Predict'):
     if input_sms.strip() == "":
         st.warning("Please enter a valid message.")
     else:
-        # Preprocess
-        transformed_sms = transform_text(input_sms)
-        # Vectorize
-        vector_input = cv.transform([transformed_sms])
+        # Load selected model
+        model, cv = load_model(model_name)
+        
+        if model and cv:
+            # Preprocess the input message
+            transformed_sms = transform_text(input_sms)
 
-        # Predict using Logistic Regression model
-        result = logistic_model.predict(vector_input)[0]
+            # Vectorize the input message
+            vector_input = cv.transform([transformed_sms])
 
-        # Output
-        if result == 0:
-            st.header("🚫 Spam")
-        else:
-            st.header("✅ Not Spam")
+            # Predict using the selected model
+            result = model.predict(vector_input)[0]
+
+            # Output the prediction result
+            if result == 1:
+                st.header("🚫 Spam")
+            else:
+                st.header("✅ Not Spam")
