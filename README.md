@@ -110,7 +110,7 @@ Follow these steps to run the project locally:
 ### 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/sms-spam-detection.git
+git clone https://github.com/mohan120105/sms-spam-detection.git
 cd sms-spam-detection
 ### 1. **Clone the repository**
 ```
